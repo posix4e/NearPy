@@ -90,9 +90,9 @@ class PCABinaryProjections(LSHash):
         if self.dim != dim:
             raise Exception('PCA hash is trained for specific dimension!')
 
-    def hash_vector(self, v, querying=False):
+    def hash_vector_raw(self, v, querying=False):
         """
-        Hashes the vector and returns the binary bucket key as string.
+        Hashes the vector and returns the binary bucket key
         """
         if scipy.sparse.issparse(v):
             # If vector is sparse, make sure we have the CSR representation
@@ -108,8 +108,16 @@ class PCABinaryProjections(LSHash):
             # Project vector onto all hyperplane normals
             projection = numpy.dot(self.components, v)
         # Return binary key
-        return [''.join(['1' if x > 0.0 else '0' for x in projection])]
-
+        return projection
+    
+    
+    def hash_vector(self, v, querying=False):
+        """
+        Hashes the vector and returns the binary bucket key as string.
+        """
+        return hash_vector(self, v, querying=querying)
+    
+    
     def get_config(self):
         """
         Returns pickle-serializable configuration struct for storage.
